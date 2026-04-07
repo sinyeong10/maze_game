@@ -38,4 +38,5 @@ def prompt_play_again():
             print_clear()
             return False
         else:
+            print_clear()
             print("need 'n' or 'y'")

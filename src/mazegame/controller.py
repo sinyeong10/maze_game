@@ -45,6 +45,8 @@ def map_size():
                 break
             else:
                 print(f"x : {x}, y : {y}로 입력하셨지만 각각의 값이 10이상이여야 합니다.")
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             print("형식이 맞지 않습니다. ex) 2 2")
     return x, y
@@ -60,18 +62,17 @@ def make_map(game):
 
 def run(game=MazeModel()):
     GameClass = game.__class__
-    make_map(game)
-
-    while True:
-        try:
-            game_loop(game=game)
-        except KeyboardInterrupt:
-            break
-
-        if not view.prompt_play_again():
-            break
-
-        game = GameClass()
+    try:
         make_map(game)
 
+        while True:
+            game_loop(game=game)
+
+            if not view.prompt_play_again():
+                break
+            game = GameClass()
+
+            make_map(game)
+    except KeyboardInterrupt:
+        return view.say_goodbye()
     return view.say_goodbye()
