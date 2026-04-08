@@ -17,50 +17,82 @@
 
 ```mermaid
 classDiagram
-    class MazeController {
-        - model: MazeModel
-        - view: MazeView
-        + run()
-        + process_input(key)
+    %% ======================
+    %% Controller (함수 기반)
+    %% ======================
+    class controller {
+        + run(game)
+        + game_loop(game)
+        + make_map(game)
+        + map_size()
     }
 
-    class MazeView {
-        + render(grid, player_pos)
-        + show_message(msg)
-        + get_user_input()
+    %% ======================
+    %% View (함수 기반)
+    %% ======================
+    class view {
+        + draw_board(game)
+        + print_map(map)
+        + print_clear()
+        + prompt_play_again()
+        + say_goodbye()
     }
 
+    %% ======================
+    %% Model
+    %% ======================
     class MazeModel {
-        - grid: List[List[int]]
-        - player_pos: Tuple[int, int]
+        - map: List[List[str]]
+        - cur_pos: Tuple[int, int]
         - start_pos: Tuple[int, int]
         - exit_pos: Tuple[int, int]
-        - generator: MazeGenerator
-        + set_generator(generator: MazeGenerator)
+        - generator: function
+        - game_lost: bool
+        - game_won: bool
+
+        + set_generator(generator)
         + generate_maze(width, height)
         + move_player(dx, dy)
         + is_valid_move(x, y)
+        + remake_map(x, y)
         + is_win()
     }
 
-    class MazeGenerator {
-        <<interface>>
-        + generate(width, height) Grid
+    %% ======================
+    %% Generator (함수)
+    %% ======================
+    class generate_maze {
+        <<function>>
+        + (width, height) -> (map, start_pos, exit_pos)
     }
 
-    class RecursiveBacktracker {
-        + generate(width, height) Grid
+    %% ======================
+    %% Exceptions
+    %% ======================
+    class GameWon {
+        <<Exception>>
     }
 
-    class PrimsAlgorithm {
-        + generate(width, height) Grid
+    class GameLost {
+        <<Exception>>
     }
 
-    MazeController --> MazeModel : 상태 변경 요청
-    MazeController --> MazeView : 화면 갱신 요청
-    MazeModel *-- MazeGenerator : 전략 패턴 사용 (Has-a)
-    MazeGenerator <|.. RecursiveBacktracker : 구현 (Implements)
-    MazeGenerator <|.. PrimsAlgorithm : 구현 (Implements)
+    class GameOverNotificationComplete {
+        <<Exception>>
+    }
+
+    %% ======================
+    %% Relationships
+    %% ======================
+    controller --> MazeModel : 상태 변경 및 실행
+    controller --> view : 화면 출력 요청
+
+    MazeModel --> generate_maze : 전략 주입 (함수 참조)
+
+    MazeModel ..> GameWon : 발생
+    MazeModel ..> GameLost : 발생
+
+    view ..> GameOverNotificationComplete : 발생
 ```
 
 # 3. 클래스 상세 명세 (Class Specifications)
